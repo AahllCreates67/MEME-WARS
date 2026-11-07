@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0612">
+<title>MEME WARS</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💀%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<header id="topbar">
+  <span class="brand">💀 MEME WARS</span>
+  <span id="conn" class="pill pill-wait">Connecting…</span>
+  <button class="icon-btn" id="top-mute" data-action="mute" type="button" aria-label="Mute or unmute all sound">🔊</button>
+</header>
+
+<main id="app">
+
+  <!-- MENU -->
+  <section class="screen" id="screen-menu">
+    <h1 class="glitch" data-text="MEME WARS">MEME WARS</h1>
+    <p class="tagline">ONE MATCH. ONE WINNER. ONE VERY HUMILIATED FRIEND.</p>
+    <div class="stack">
+      <button class="btn btn-red" data-action="play" type="button">▶ PLAY MULTIPLAYER</button>
+      <button class="btn btn-purple" data-action="create" type="button">🏠 CREATE ROOM</button>
+      <button class="btn btn-cyan" data-action="join" type="button">🚪 JOIN ROOM</button>
+      <button class="btn btn-yellow" data-action="how" type="button">❓ HOW TO PLAY</button>
+      <button class="btn btn-ghost" data-action="settings" type="button">⚙️ SETTINGS</button>
+    </div>
+    <p class="credit">Made with 💕 by AAHIL</p>
+  </section>
+
+  <!-- PLAYER SETUP -->
+  <section class="screen" id="screen-identity">
+    <h2 id="id-title">PLAYER SETUP</h2>
+    <div class="field">
+      <label for="name-input">Username (max 16 characters)</label>
+      <div class="row">
+        <input id="name-input" type="text" maxlength="16" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Your meme name">
+        <button class="btn btn-icon btn-yellow" data-action="rand-name" type="button" aria-label="Random username">🎲</button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="field-label">Avatar</span>
+      <div id="avatar-grid" class="avatar-grid" role="radiogroup" aria-label="Choose an avatar"></div>
+    </div>
+    <div class="field" id="code-field">
+      <label for="code-input">Room code</label>
+      <input id="code-input" type="text" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD">
+    </div>
+    <p id="id-error" class="error-text" role="alert" hidden></p>
+    <div class="stack">
+      <button id="btn-do-create" class="btn btn-purple" data-action="do-create" type="button">🏠 CREATE ROOM</button>
+      <button id="btn-do-join" class="btn btn-cyan" data-action="do-join" type="button">🚪 JOIN ROOM</button>
+      <button class="btn btn-ghost" data-action="menu" type="button">BACK</button>
+    </div>
+  </section>
+
+  <!-- LOBBY -->
+  <section class="screen" id="screen-lobby">
+    <div class="row between">
+      <div>
+        <div class="label">Room code</div>
+        <div id="lobby-code" class="room-code">----</div>
+      </div>
+      <button class="btn btn-small btn-yellow" data-action="copy-code" type="button">📋 Copy code</button>
+    </div>
+    <div class="card">
+      <div class="label">Friends open this on the same Wi-Fi / hotspot</div>
+      <div id="addr-list" class="addr-list"></div>
+    </div>
+    <div class="row between">
+      <span id="lobby-count" class="label"></span>
+      <span id="lobby-conn" class="pill pill-wait"></span>
+    </div>
+    <div id="lobby-players" class="pgrid"></div>
+    <p id="lobby-hint" class="hint"></p>
+    <div class="stack">
+      <button id="btn-start" class="btn btn-red" data-action="start" type="button">⚔️ START MATCH</button>
+      <button class="btn btn-ghost" data-action="leave" type="button">LEAVE ROOM</button>
+    </div>
+  </section>
+
+  <!-- COUNTDOWN -->
+  <section class="screen center" id="screen-countdown">
+    <div id="cd-num" class="cd-num">3</div>
+    <div id="cd-game" class="cd-game"></div>
+    <p id="cd-tip" class="cd-tip"></p>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen" id="screen-game">
+    <div class="game-head">
+      <span id="game-title" class="game-title"></span>
+      <span id="game-timer" class="game-timer"></span>
+    </div>
+    <div id="game-live" class="live-bar" hidden></div>
+    <div id="game-stage" class="stage">
+      <div class="gbox" id="g-reaction" hidden>
+        <div id="react-pad" class="pad wait" role="button" tabindex="0" aria-label="Reaction pad">
+          <div id="react-big" class="pad-big">WAIT…</div>
+          <div id="react-small" class="pad-small"></div>
+        </div>
+      </div>
+      <div class="gbox" id="g-dodge" hidden><canvas id="dodge-canvas" class="gcanvas"></canvas></div>
+      <div class="gbox" id="g-aim" hidden><canvas id="aim-canvas" class="gcanvas"></canvas></div>
+      <div class="gbox" id="g-smash" hidden>
+        <div id="smash-count" class="smash-count">0</div>
+        <button id="smash-btn" class="smash-btn" type="button">👊<span>SMASH!</span></button>
+      </div>
+    </div>
+    <p id="game-wait" class="hint wait-msg" hidden></p>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="screen" id="screen-results">
+    <div id="res-reactions" class="floaties" aria-hidden="true"></div>
+    <div id="res-banner" class="res-banner">VICTORY</div>
+    <div id="res-sub" class="res-sub"></div>
+    <p id="res-roast" class="res-roast"></p>
+    <div class="card">
+      <div id="res-game" class="label"></div>
+      <ol id="res-scores" class="scores"></ol>
+    </div>
+    <div class="now-playing" data-now>🦗 Silence…</div>
+    <div class="stack">
+      <button id="btn-deck" class="btn btn-yellow" data-action="open-deck" type="button">🔊 OPEN MEME SOUNDBOARD</button>
+      <button id="btn-rematch-vote" class="btn btn-cyan" data-action="rematch" type="button">🔁 REMATCH?</button>
+      <button id="btn-rematch-start" class="btn btn-red" data-action="rematch-start" type="button">🔁 START REMATCH</button>
+      <button id="btn-tolobby" class="btn btn-purple" data-action="to-lobby" type="button">↩ BACK TO LOBBY</button>
+      <button class="btn btn-ghost" data-action="leave" type="button">LEAVE ROOM</button>
+    </div>
+    <p id="res-hint" class="hint"></p>
+  </section>
+
+  <!-- SOUND DECK -->
+  <section class="screen" id="screen-deck">
+    <h2 class="deck-title">MEME WARS — GLOBAL MEME SOUND DECK 🌍💀</h2>
+    <p id="deck-role" class="hint"></p>
+    <div class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="international" type="button">INTERNATIONAL MEMES 🌍</button>
+      <button class="tab" role="tab" data-tab="custom" type="button">MY CUSTOM INDIAN MEMES 🇮🇳</button>
+    </div>
+    <div id="deck-international" class="sound-grid" role="tabpanel"></div>
+    <div id="deck-custom" class="sound-grid" role="tabpanel" hidden></div>
+    <div class="now-playing" data-now>🦗 Silence…</div>
+    <div class="card deck-controls">
+      <div class="row">
+        <button class="btn btn-small btn-red" data-action="stop-sound" type="button">⏹ STOP</button>
+        <button class="btn btn-small btn-ghost" data-action="mute" type="button" data-mute-label>🔊 Mute</button>
+      </div>
+      <label class="slider">Master volume <input type="range" min="0" max="100" data-vol="master"></label>
+      <label class="slider">Meme volume <input type="range" min="0" max="100" data-vol="meme"></label>
+    </div>
+    <div class="stack">
+      <button class="btn btn-ghost" data-action="close-deck" type="button">← BACK TO RESULTS</button>
+    </div>
+  </section>
+
+  <!-- HOW TO PLAY -->
+  <section class="screen" id="screen-how">
+    <h2>HOW TO PLAY</h2>
+    <div class="card prose">
+      <h3>1. Same network</h3>
+      <p>One person runs the Node.js server on their phone-hotspot-connected laptop or PC. Everyone else joins the <b>same Wi-Fi or hotspot</b> and opens the host's address (like <code>http://192.168.1.5:3000</code>) in their browser.</p>
+      <h3>2. Create a room</h3>
+      <p>Tap <b>CREATE ROOM</b>, pick a name and avatar. You get a 4-character room code and the address to share. Use the copy buttons.</p>
+      <h3>3. Join with a code</h3>
+      <p>Friends tap <b>JOIN ROOM</b>, enter the code and jump into the lobby. 2 to 4 players fit in one room.</p>
+      <h3>4. The match</h3>
+      <p>The host starts one round. After a 3-2-1-GO countdown, one random mini-game starts for everyone at once:</p>
+      <ul>
+        <li><b>Reaction Rush</b> – tap when the screen turns green. Early taps cost 1 second each.</li>
+        <li><b>Dodge Master</b> – drag or use ← → to avoid falling junk. Longest survivor wins.</li>
+        <li><b>Aim Battle</b> – tap targets for points. Small ones are worth more.</li>
+        <li><b>Button Smash</b> – hammer the big button for 10 seconds.</li>
+      </ul>
+      <h3>5. Who wins?</h3>
+      <p>The <b>server</b> checks every score and picks the winner. Ties are settled by a server coin flip. Leaving mid-match disqualifies you.</p>
+      <h3>6. The Meme Sound Deck</h3>
+      <p>Only the verified winner can open the deck's controls. Every sound they tap plays on <b>everyone's</b> device, so losers hear it too. Nobody else can trigger sounds. The server enforces this, not the browser.</p>
+    </div>
+    <div class="stack"><button class="btn btn-ghost" data-action="menu" type="button">BACK</button></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen" id="screen-settings">
+    <h2>SETTINGS</h2>
+    <div class="card">
+      <label class="slider">Master volume <input type="range" min="0" max="100" data-vol="master"></label>
+      <label class="slider">Meme volume <input type="range" min="0" max="100" data-vol="meme"></label>
+      <label class="slider">Game sound volume <input type="range" min="0" max="100" data-vol="game"></label>
+      <div class="row">
+        <button class="btn btn-small btn-ghost" data-action="mute" type="button" data-mute-label>🔊 Mute</button>
+        <button class="btn btn-small btn-yellow" data-action="test-sound" type="button">🔔 Test game sound</button>
+      </div>
+    </div>
+    <p class="hint">Settings, your name and your avatar are saved on this device only.</p>
+    <div class="stack">
+      <button class="btn btn-red" data-action="reset-data" type="button">🗑 RESET SAVED DATA</button>
+      <button class="btn btn-ghost" data-action="menu" type="button">BACK</button>
+    </div>
+  </section>
+
+</main>
+
+<div id="audio-banner" hidden>
+  <button class="btn btn-yellow" data-action="enable-audio" type="button">🔊 TAP TO ENABLE AUDIO</button>
+</div>
+
+<div id="overlay" hidden>
+  <div class="modal" role="alertdialog" aria-labelledby="ov-title">
+    <h2 id="ov-title">Connection lost</h2>
+    <p id="ov-text"></p>
+    <div class="row">
+      <button class="btn btn-cyan btn-small" data-action="retry" type="button">RETRY</button>
+      <button class="btn btn-ghost btn-small" data-action="dismiss" type="button">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+<noscript><p style="position:fixed;inset:60px 16px auto;color:#fff">MEME WARS needs JavaScript turned on.</p></noscript>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
